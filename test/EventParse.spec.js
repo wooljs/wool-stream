@@ -15,41 +15,37 @@ var test = require('tape')
   , TestStream = require( __dirname + '/test-stream.js')
   , ws = require( __dirname + '/../index.js')
 
-test('check stream StreamJoin with default separator', function(t) {
+test('check stream EventParse', function(t) {
   var count = 0
     , data = [
-      '{"plip": 0}',
-      '{"plop": 42}',
-      '{"test": "this is a long text"}',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+      '2017-02-10T12:43:40.247Z-0000 plop {"plop":42}',
+      '2017-02-10T12:43:41.247Z-00ff plip {"plip":{"plouf":"plaf"}}',
+      '2017-02-10T12:43:42.247Z-0100 XX {"test":"this is a long text"}',
+      '2017-02-10T12:43:43.247Z-0000 foobar {"plop": 42}'
     ]
     , expected = [
-      '{"plip": 0}',
-      '\n',
-      '{"plop": 42}',
-      '\n',
-      '{"test": "this is a long text"}',
-      '\n',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
-      '\n'
+      ws.Event(new Date('2017-02-10T12:43:40.247Z'), 0, 'plop', {plop: 42}),
+      ws.Event(new Date('2017-02-10T12:43:41.247Z'), 255, 'plip', {"plip": {"plouf": "plaf"}}),
+      ws.Event(new Date('2017-02-10T12:43:42.247Z'), 256, 'XX', {'test': 'this is a long text'}),
+      ws.Event(new Date('2017-02-10T12:43:43.247Z'), 0, 'foobar', {plop: 42})
     ]
     , ins = TestStream()
 
   ins
-  .pipe(ws.StreamJoin())
+  .pipe(ws.EventParse())
   .on('error', function (e) {
     console.trace(e)
     t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data.toString(), expected[count])
+    t.deepEqual(data, expected[count])
     count += 1
     this.push(data)
     callback()
   }, undefined, {objectMode: true}))
   .on('finish', function () {
-    t.deepEqual(count, 8)
+    t.deepEqual(count, 4)
     t.end()
   })
 

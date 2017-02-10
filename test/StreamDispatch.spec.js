@@ -35,6 +35,7 @@ test('check stream StreamDispatch', function(t) {
   .pipe(ws.StreamDispatch(function (o) { o.test = index; index+=1 }))
   .on('error', function (e) {
     console.trace(e)
+    t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {

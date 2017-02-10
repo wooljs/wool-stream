@@ -35,6 +35,7 @@ test('check stream JsonParse', function(t) {
   .pipe(ws.JsonParse())
   .on('error', function (e) {
     console.trace(e)
+    t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {

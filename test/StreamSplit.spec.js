@@ -30,6 +30,7 @@ test('check stream StreamSplit with default separator', function(t) {
   .pipe(ws.StreamSplit())
   .on('error', function (e) {
     console.trace(e)
+    t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {
@@ -56,6 +57,7 @@ test('check stream StreamSplit with given one character separator', function(t) 
   .pipe(ws.StreamSplit('|'))
   .on('error', function (e) {
     console.trace(e)
+    t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {
@@ -84,6 +86,7 @@ test('check stream StreamSplit with given many character separator', function(t)
   .pipe(ws.StreamSplit('<br>'))
   .on('error', function (e) {
     console.trace(e)
+    t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {

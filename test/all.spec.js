@@ -41,6 +41,7 @@ test('check stream all piped together', function(t) {
     .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
     .on('error', function (e) {
       console.trace(e)
+      t.fail(e)
       t.end()
     })
     .on('finish', function () {
