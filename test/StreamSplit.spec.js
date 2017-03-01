@@ -29,7 +29,7 @@ test('check stream StreamSplit with default separator', function(t) {
   fs.createReadStream(file_load, {flags: 'r'})
   .pipe(ws.StreamSplit())
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })
@@ -56,7 +56,7 @@ test('check stream StreamSplit with given one character separator', function(t) 
   ins
   .pipe(ws.StreamSplit('|'))
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })
@@ -85,7 +85,7 @@ test('check stream StreamSplit with given many character separator', function(t)
   ins
   .pipe(ws.StreamSplit('<br>'))
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })

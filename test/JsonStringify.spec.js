@@ -38,7 +38,7 @@ test('check stream JsonStringify', function(t) {
   ins
   .pipe(ws.JsonStringify())
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })

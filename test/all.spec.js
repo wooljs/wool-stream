@@ -27,7 +27,8 @@ test('check stream all piped together', function(t) {
   .pipe(ws.JsonParse())
   .pipe(ws.StreamDispatch(function() { count+=1 }))
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
+    t.fail(e)
     t.end()
   })
   .on('finish', function () {
@@ -40,7 +41,7 @@ test('check stream all piped together', function(t) {
     .pipe(ws.StreamJoin())
     .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
     .on('error', function (e) {
-      console.trace(e)
+      //console.trace(e)
       t.fail(e)
       t.end()
     })

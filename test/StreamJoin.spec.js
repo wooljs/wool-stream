@@ -38,7 +38,7 @@ test('check stream StreamJoin with default separator', function(t) {
   ins
   .pipe(ws.StreamJoin())
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })

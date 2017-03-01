@@ -34,7 +34,7 @@ test('check stream StreamDispatch', function(t) {
   ins
   .pipe(ws.StreamDispatch(function (o) { o.test = index; index+=1 }))
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })
@@ -45,7 +45,8 @@ test('check stream StreamDispatch', function(t) {
     callback()
   }, undefined, {objectMode: true}))
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
+    t.fail(e)
     t.end()
   })
   .on('finish', function () {

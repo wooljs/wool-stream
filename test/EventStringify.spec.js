@@ -23,7 +23,7 @@ test('check stream EventStringify', function(t) {
   var count = 0
     , data = [
       ws.Event(new Date('2017-02-10T12:43:40.247Z'), 0, 'plop', {plop: 42}),
-      ws.Event(new Date('2017-02-10T12:43:41.247Z'), 255, 'plip', {"plip": {"plouf": "plaf"}}),
+      ws.Event(new Date('2017-02-10T12:43:41.247Z'), 255, 'plip', {'plip': {plouf: 'plaf'}}),
       ws.Event(new Date('2017-02-10T12:43:42.247Z'), 256, 'XX', {'test': 'this is a long text'}),
       ws.Event(new Date('2017-02-10T12:43:43.247Z'), 0, 'foobar', {plop: 42})
     ]
@@ -38,7 +38,7 @@ test('check stream EventStringify', function(t) {
   ins
   .pipe(ws.EventStringify())
   .on('error', function (e) {
-    console.trace(e)
+    //console.trace(e)
     t.fail(e)
     t.end()
   })
