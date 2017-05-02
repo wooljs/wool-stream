@@ -32,7 +32,7 @@ test('check stream StreamDispatch', function(t) {
     , ins = TestStream(undefined, undefined, {objectMode: true, paf:'pif'})
 
   ins
-  .pipe(ws.StreamDispatch(function (o) { o.test = index; index+=1 }))
+  .pipe(ws.StreamDispatch(function (o, cb) { o.test = index; index+=1; cb(null) }))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)

@@ -25,7 +25,7 @@ test('check stream all piped together', function(t) {
   fs.createReadStream(file_load, {flags: 'r'})
   .pipe(ws.StreamSplit())
   .pipe(ws.JsonParse())
-  .pipe(ws.StreamDispatch(function() { count+=1 }))
+  .pipe(ws.StreamDispatch(function(o, cb) { count+=1; cb(null) }))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
@@ -33,7 +33,7 @@ test('check stream all piped together', function(t) {
   })
   .on('finish', function () {
 
-    var es = ws.StreamDispatch(function() { count+=1 })
+    var es = ws.StreamDispatch(function(o, cb) { count+=1; cb(null) })
     var date = new Date()
 
     es
