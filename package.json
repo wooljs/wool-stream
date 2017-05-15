@@ -25,9 +25,9 @@
   },
   "homepage": "https://github.com/nicocube/wool-stream#readme",
   "devDependencies": {
-    "eslint": "^3.14.1",
+    "eslint": "^3.19.0",
     "istanbul": "^0.4.5",
-    "tap-summary": "^3.0.1",
+    "tap-summary": "^3.0.2",
     "tape": "^4.6.3"
   }
 }
