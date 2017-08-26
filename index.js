@@ -18,6 +18,7 @@ module.exports = (function () {
     'JsonParse',
     'JsonStringify',
     'Event',
+    'EventCount',
     'EventParse',
     'EventStringify',
     'StreamDispatch',
