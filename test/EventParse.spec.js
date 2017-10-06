@@ -34,7 +34,7 @@ test('check stream EventParse', function(t) {
   ins
   .pipe(ws.EventParse())
   .on('error', function (e) {
-    //console.trace(e)
+    console.trace(e)
     t.fail(e)
     t.end()
   })
