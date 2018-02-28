@@ -15,12 +15,9 @@ module.exports = (function () {
   return [
     'StreamSplit',
     'StreamJoin',
-    'JsonParse',
-    'JsonStringify',
-    'Event',
+    'StreamParse',
+    'StreamStringify',
     'EventCount',
-    'EventParse',
-    'EventStringify',
     'StreamDispatch',
     'PushStream'
   ].reduce(function(p, c) {

@@ -12,38 +12,42 @@
 'use strict'
 
 var test = require('tape')
+  , fs = require('fs')
   , TestStream = require( __dirname + '/test-stream.js')
   , ws = require( __dirname + '/../index.js')
+  , file_save = __dirname+'/test_save.db'
 
-test('check stream JsonParse', function(t) {
+if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
+
+test('check stream StreamStringify', function(t) {
   var count = 0
     , data = [
-      '{"plip": 0}',
-      '{"plop": 42}',
-      '{"test": "this is a long text"}',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-    ]
-    , expected = [
       {plip: 0},
       {plop: 42},
       {'test': 'this is a long text'},
-      {'a':1, 'd':{}, 'e':null, 'b':true, 'c': [-12, 1, 2, 42]}
+      {'a':1, 'b':true, 'c': [-12, 1, 2, 42], 'd':{}, 'e':null}
     ]
-    , ins = TestStream()
+    , expected = [
+      '{"plip":0}',
+      '{"plop":42}',
+      '{"test":"this is a long text"}',
+      '{"a":1,"b":true,"c":[-12,1,2,42],"d":{},"e":null}'
+    ]
+    , ins = TestStream(undefined, undefined, {objectMode: true})
 
   ins
-  .pipe(ws.JsonParse())
+  .pipe(ws.StreamStringify())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data, expected[count])
+    t.deepEqual(data.toString(), expected[count])
     count += 1
     this.push(data)
     callback()
-  }, undefined, {objectMode: true}))
+  }))
   .on('finish', function () {
     t.deepEqual(count, 4)
     t.end()

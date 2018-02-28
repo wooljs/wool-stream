@@ -24,7 +24,7 @@ test('check stream all piped together', function(t) {
 
   fs.createReadStream(file_load, {flags: 'r'})
   .pipe(ws.StreamSplit())
-  .pipe(ws.JsonParse())
+  .pipe(ws.StreamParse())
   .pipe(ws.StreamDispatch(function(o, cb) { count+=1; cb(null) }))
   .on('error', function (e) {
     //console.trace(e)
@@ -37,7 +37,7 @@ test('check stream all piped together', function(t) {
     var date = new Date()
 
     es
-    .pipe(ws.JsonStringify())
+    .pipe(ws.StreamStringify())
     .pipe(ws.StreamJoin())
     .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
     .on('error', function (e) {

@@ -15,38 +15,43 @@ var test = require('tape')
   , TestStream = require( __dirname + '/test-stream.js')
   , ws = require( __dirname + '/../index.js')
 
-test('check stream EventCount', function(t) {
+test('check stream StreamParse', function(t) {
   var count = 0
-    , events = [
-      ws.Event(new Date('2017-02-10T12:43:40.247Z'), 0, 'plop', {plop: 42}),
-      ws.Event(new Date('2017-02-10T12:43:41.247Z'), 255, 'plip', {'plip': {plouf: 'plaf'}}),
-      ws.Event(new Date('2017-02-10T12:43:42.247Z'), 256, 'XX', {'test': 'this is a long text'}),
-      ws.Event(new Date('2017-02-10T12:43:43.247Z'), 0, 'foobar', {plop: 42})
+    , data = [
+      '{"plip": 0}',
+      '{"plop": 42}',
+      '{"test": "this is a long text"}',
+      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
     ]
-    , ins = TestStream(null, null, {objectMode: true})
-    , evc = ws.EventCount()
+    , expected = [
+      {plip: 0},
+      {plop: 42},
+      {'test': 'this is a long text'},
+      {'a':1, 'd':{}, 'e':null, 'b':true, 'c': [-12, 1, 2, 42]}
+    ]
+    , ins = TestStream()
+
   ins
-  .pipe(evc)
+  .pipe(ws.StreamParse())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
     t.end()
   })
   .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data, events[count])
+    t.deepEqual(data, expected[count])
     count += 1
     this.push(data)
     callback()
   }, undefined, {objectMode: true}))
   .on('finish', function () {
-    t.deepEqual(evc.count(), 4)
     t.deepEqual(count, 4)
     t.end()
   })
 
-  var i = 0, l = events.length
+  var i = 0, l = data.length
   for(; i < l; i+=1) {
-    ins.write(events[i])
+    ins.write(data[i])
   }
   ins.end()
 })
