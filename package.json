@@ -27,8 +27,8 @@
   "devDependencies": {
     "eslint": "^3.19.0",
     "istanbul": "^0.4.5",
-    "nodemon": "^1.12.1",
+    "nodemon": "^1.17.1",
     "tap-summary": "^3.0.2",
-    "tape": "^4.8.0"
+    "tape": "^4.9.0"
   }
 }
