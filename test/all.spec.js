@@ -20,31 +20,32 @@ var test = require('tape')
 if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
 
 test('check stream all piped together', function(t) {
-  var count = 0
-
-  fs.createReadStream(file_load, {flags: 'r'})
-  .pipe(ws.StreamSplit())
-  .pipe(ws.StreamParse())
-  .pipe(ws.StreamDispatch(function(o, cb) { count+=1; cb(null) }))
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .on('finish', function () {
-
-    var es = ws.StreamDispatch(function(o, cb) { count+=1; cb(null) })
-    var date = new Date()
-
-    es
-    .pipe(ws.StreamStringify())
-    .pipe(ws.StreamJoin())
-    .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
-    .on('error', function (e) {
+  let count = 0
+    , onError = function (e) {
       //console.trace(e)
       t.fail(e)
       t.end()
-    })
+    }
+    , countStream = ws.CountStream()
+
+  fs.createReadStream(file_load, {flags: 'r'})
+  .pipe(ws.StreamSplit().on('error', onError))
+  .pipe(ws.StreamParse().on('error', onError))
+  .pipe(countStream.on('error', onError))
+  .pipe(ws.StreamDispatch(function(o, cb) { count+=1; cb(null) }).on('error', onError))
+  .on('error', onError)
+  .on('finish', function () {
+
+    let es = ws.StreamDispatch(function(o, cb) { count+=1; cb(null) })
+      , date = new Date()
+
+    t.deepEqual(countStream.count(), 4)
+
+    es
+    .pipe(ws.StreamStringify().on('error', onError))
+    .pipe(ws.StreamJoin().on('error', onError))
+    .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
+    .on('error', onError)
     .on('finish', function () {
       t.deepEqual(count, 8)
 
@@ -55,6 +56,7 @@ test('check stream all piped together', function(t) {
 
         fs.unlink(file_save, function(err) {
           if (err) throw err
+          t.plan(3)
           t.end()
         })
       })

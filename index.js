@@ -17,7 +17,7 @@ module.exports = (function () {
     'StreamJoin',
     'StreamParse',
     'StreamStringify',
-    'EventCount',
+    'CountStream',
     'StreamDispatch',
     'PushStream'
   ].reduce(function(p, c) {

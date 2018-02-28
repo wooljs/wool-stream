@@ -59,3 +59,45 @@ test('check stream StreamStringify', function(t) {
   }
   ins.end()
 })
+
+test('check stream StreamStringify with stringifier', function(t) {
+  var count = 0
+    , data = [
+      {plip: '0'},
+      {plop: '42'},
+      {'test': 'this is a long text'},
+      {'a': '1', 'd': '{}', 'e':'null', 'b':'true', 'c': ['-12', '1', '2', '42']}
+    ]
+    , expected = [
+      'plip=0',
+      'plop=42',
+      'test=this%20is%20a%20long%20text',
+      'a=1&d=%7B%7D&e=null&b=true&c=-12&c=1&c=2&c=42'
+    ]
+    , ins = TestStream(undefined, undefined, {objectMode: true})
+    , stringifier = require('querystring').stringify
+
+  ins
+  .pipe(ws.StreamStringify(stringifier))
+  .on('error', function (e) {
+    //console.trace(e)
+    t.fail(e)
+    t.end()
+  })
+  .pipe(TestStream(function (data, encoding, callback) {
+    t.deepEqual(data.toString(), expected[count])
+    count += 1
+    this.push(data)
+    callback()
+  }))
+  .on('finish', function () {
+    t.deepEqual(count, 4)
+    t.end()
+  })
+
+  var i = 0, l = data.length
+  for(; i < l; i+=1) {
+    ins.write(data[i])
+  }
+  ins.end()
+})
