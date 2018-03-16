@@ -17,8 +17,8 @@ module.exports = (function () {
     'StreamJoin',
     'StreamParse',
     'StreamStringify',
+    'AsyncMapStream',
     'CountStream',
-    'StreamDispatch',
     'PushStream'
   ].reduce(function(p, c) {
     p[c] = require(__dirname+'/lib/'+c+'.js')

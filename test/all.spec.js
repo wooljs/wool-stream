@@ -11,9 +11,9 @@
 
 'use strict'
 
-var test = require('tape')
+const test = require('tape')
   , fs = require('fs')
-  , ws = require( __dirname + '/../index.js')
+  , { StreamJoin, StreamSplit, StreamParse, StreamStringify, CountStream, AsyncMapStream } = require( __dirname + '/../index.js')
   , file_load = __dirname+'/test_load.db'
   , file_save = __dirname+'/test_save.db'
 
@@ -26,24 +26,24 @@ test('check stream all piped together', function(t) {
       t.fail(e)
       t.end()
     }
-    , countStream = ws.CountStream()
+    , countStream = CountStream()
 
   fs.createReadStream(file_load, {flags: 'r'})
-  .pipe(ws.StreamSplit().on('error', onError))
-  .pipe(ws.StreamParse().on('error', onError))
+  .pipe(StreamSplit().on('error', onError))
+  .pipe(StreamParse().on('error', onError))
   .pipe(countStream.on('error', onError))
-  .pipe(ws.StreamDispatch(function(o, cb) { count+=1; cb(null) }).on('error', onError))
+  .pipe(AsyncMapStream(async function(o) { count+=1; return o }).on('error', onError))
   .on('error', onError)
   .on('finish', function () {
 
-    let es = ws.StreamDispatch(function(o, cb) { count+=1; cb(null) })
+    let es = AsyncMapStream(async function(o) { count+=1; return o })
       , date = new Date()
 
     t.deepEqual(countStream.count(), 4)
 
     es
-    .pipe(ws.StreamStringify().on('error', onError))
-    .pipe(ws.StreamJoin().on('error', onError))
+    .pipe(StreamStringify().on('error', onError))
+    .pipe(StreamJoin().on('error', onError))
     .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
     .on('error', onError)
     .on('finish', function () {

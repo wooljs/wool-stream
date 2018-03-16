@@ -13,9 +13,9 @@
 
 var test = require('tape')
   , TestStream = require( __dirname + '/test-stream.js')
-  , ws = require( __dirname + '/../index.js')
+  , { AsyncMapStream } = require( __dirname + '/../index.js')
 
-test('check stream StreamDispatch', function(t) {
+test('check stream AsyncMapStream', function(t) {
   var count = 0, index = 0
     , data = [
       {plip: 0},
@@ -32,7 +32,7 @@ test('check stream StreamDispatch', function(t) {
     , ins = TestStream(undefined, undefined, {objectMode: true, paf:'pif'})
 
   ins
-  .pipe(ws.StreamDispatch(function (o, cb) { o.test = index; index+=1; cb(null) }))
+  .pipe(AsyncMapStream(async function (o) { o.test = index; index+=1; return o }))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
