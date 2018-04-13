@@ -14,7 +14,7 @@
 var test = require('tape')
   , fs = require('fs')
   , TestStream = require( __dirname + '/test-stream.js')
-  , ws = require( __dirname + '/../index.js')
+  ,  { StreamSplit }  = require( __dirname + '/../index.js')
   , file_load = __dirname+'/test_load.db'
 
 test('check stream StreamSplit with default separator', function(t) {
@@ -27,7 +27,7 @@ test('check stream StreamSplit with default separator', function(t) {
     ]
 
   fs.createReadStream(file_load, {flags: 'r'})
-  .pipe(ws.StreamSplit())
+  .pipe(StreamSplit())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
@@ -54,7 +54,7 @@ test('check stream StreamSplit with given one character separator', function(t) 
     , ins = TestStream()
 
   ins
-  .pipe(ws.StreamSplit('|'))
+  .pipe(StreamSplit('|'))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
@@ -83,7 +83,7 @@ test('check stream StreamSplit with given many character separator', function(t)
     , ins = TestStream()
 
   ins
-  .pipe(ws.StreamSplit('<br>'))
+  .pipe(StreamSplit('<br>'))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)

@@ -14,7 +14,7 @@
 var test = require('tape')
   , fs = require('fs')
   , TestStream = require( __dirname + '/test-stream.js')
-  , ws = require( __dirname + '/../index.js')
+  , { StreamStringify } = require( __dirname + '/../index.js')
   , file_save = __dirname+'/test_save.db'
 
 if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
@@ -36,7 +36,7 @@ test('check stream StreamStringify', function(t) {
     , ins = TestStream(undefined, undefined, {objectMode: true})
 
   ins
-  .pipe(ws.StreamStringify())
+  .pipe(StreamStringify())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
@@ -78,7 +78,7 @@ test('check stream StreamStringify with stringifier', function(t) {
     , stringifier = require('querystring').stringify
 
   ins
-  .pipe(ws.StreamStringify(stringifier))
+  .pipe(StreamStringify(stringifier))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)

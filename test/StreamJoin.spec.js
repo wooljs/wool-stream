@@ -13,7 +13,7 @@
 
 var test = require('tape')
   , TestStream = require( __dirname + '/test-stream.js')
-  , ws = require( __dirname + '/../index.js')
+  , { StreamJoin } = require( __dirname + '/../index.js')
 
 test('check stream StreamJoin with default separator', function(t) {
   var count = 0
@@ -36,7 +36,7 @@ test('check stream StreamJoin with default separator', function(t) {
     , ins = TestStream()
 
   ins
-  .pipe(ws.StreamJoin())
+  .pipe(StreamJoin())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)

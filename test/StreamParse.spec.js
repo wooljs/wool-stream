@@ -13,7 +13,7 @@
 
 var test = require('tape')
   , TestStream = require( __dirname + '/test-stream.js')
-  , ws = require( __dirname + '/../index.js')
+  , { StreamParse } = require( __dirname + '/../index.js')
 
 test('check stream StreamParse', function(t) {
   var count = 0
@@ -32,7 +32,7 @@ test('check stream StreamParse', function(t) {
     , ins = TestStream()
 
   ins
-  .pipe(ws.StreamParse())
+  .pipe(StreamParse())
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
@@ -74,7 +74,7 @@ test('check stream StreamParse with parser', function(t) {
     , parser = require('querystring').parse
 
   ins
-  .pipe(ws.StreamParse(parser))
+  .pipe(StreamParse(parser))
   .on('error', function (e) {
     //console.trace(e)
     t.fail(e)
