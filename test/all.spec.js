@@ -19,7 +19,7 @@ const test = require('tape')
 
 if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
 
-test('check stream all piped together', function(t) {
+test('check stream all piped together', async function(t) {
   let count = 0
     , onError = function (e) {
       //console.trace(e)
@@ -28,44 +28,53 @@ test('check stream all piped together', function(t) {
     }
     , countStream = CountStream()
 
-  fs.createReadStream(file_load, {flags: 'r'})
-  .pipe(StreamSplit().on('error', onError))
-  .pipe(StreamParse().on('error', onError))
-  .pipe(countStream.on('error', onError))
-  .pipe(AsyncMapStream(async function(o) { count+=1; return o }).on('error', onError))
-  .on('error', onError)
-  .on('finish', function () {
-
-    let es = AsyncMapStream(async function(o) { count+=1; return o })
-      , date = new Date()
-
-    t.deepEqual(countStream.count(), 4)
-
-    es
-    .pipe(StreamStringify().on('error', onError))
-    .pipe(StreamJoin().on('error', onError))
-    .pipe(fs.createWriteStream(file_save, {flags: 'a'}))
+  await new Promise(resolve => {
+    fs.createReadStream(file_load, {flags: 'r'})
+    .pipe(StreamSplit().on('error', onError))
+    .pipe(StreamParse().on('error', onError))
+    .pipe(countStream.on('error', onError))
+    .pipe(AsyncMapStream(async function(o) { count+=1; return o }).on('error', onError))
     .on('error', onError)
-    .on('finish', function () {
-      t.deepEqual(count, 8)
+    .on('finish', () => resolve())
+  })
 
-      fs.readFile(file_save,{encoding:'utf8'}, function (err, data) {
-        if (err) throw err
+  t.deepEqual(countStream.count(), 4)
 
-        t.deepEqual(data,'{"yo":"yeah"}\n42\n"paf"\n{"this is the end":"'+date.toISOString()+'"}\n')
+  let es = AsyncMapStream(async function(o) { count+=1; return o })
+    , ss = fs.createWriteStream(file_save, {flags: 'a'})
+    , date = new Date()
 
-        fs.unlink(file_save, function(err) {
-          if (err) throw err
-          t.plan(3)
-          t.end()
-        })
-      })
+  es
+  .pipe(StreamStringify().on('error', onError))
+  .pipe(StreamJoin().on('error', onError))
+  .pipe(ss)
+  .on('error', onError)
 
-    })
+  await new Promise(resolve => {
+    ss.on('close', () => resolve())
 
     es.write({yo:'yeah'})
     es.write(42)
     es.write('paf')
-    es.end({'this is the end':date.toISOString()})
+    es.write({'this is the end':date.toISOString()})
+    es.end()
   })
+
+  t.deepEqual(count, 8)
+
+  await new Promise(resolve => {
+    fs.readFile(file_save,{encoding:'utf8'}, function (err, data) {
+      if (err) throw err
+
+      t.deepEqual(data,'{"yo":"yeah"}\n42\n"paf"\n{"this is the end":"'+date.toISOString()+'"}\n')
+
+      fs.unlink(file_save, function(err) {
+        if (err) throw err
+        resolve()
+      })
+    })
+  })
+
+  t.plan(3)
+  t.end()
 })
