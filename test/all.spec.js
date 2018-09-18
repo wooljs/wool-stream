@@ -11,7 +11,7 @@
 
 'use strict'
 
-const test = require('tape')
+const test = require('tape-async')
   , fs = require('fs')
   , { StreamJoin, StreamSplit, StreamParse, StreamStringify, CountStream, AsyncMapStream } = require( __dirname + '/../index.js')
   , file_load = __dirname+'/test_load.db'
