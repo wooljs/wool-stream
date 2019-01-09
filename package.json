@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "preversion": "npm test",
+    "preversion": "npm test && npm outdated",
     "pretest": "npm run lint",
     "test": "tape test/**/*.spec.js |tap-summary --no-progress",
     "autotest": "nodemon -e js,yml -x 'tape test/**/*.spec.js |tap-summary --no-progress'",
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/nicocube/wool-stream#readme",
   "devDependencies": {
-    "eslint": "^5.11.1",
+    "eslint": "^5.12.0",
     "nodemon": "^1.18.9",
     "nyc": "^13.1.0",
     "tap-summary": "^4.0.0",
