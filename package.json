@@ -32,6 +32,5 @@
     "tap-summary": "^4.0.0",
     "tape": "^5.0.1",
     "tape-async": "^2.3.0"
-  },
-  "dependencies": {}
+  }
 }
