@@ -12,10 +12,11 @@
 'use strict'
 
 var test = require('tape')
-  , TestStream = require( __dirname + '/test-stream.js')
-  , { StreamParse } = require( __dirname + '/../index.js')
+  , querystring = require('querystring')
+  , TestStream = require(__dirname + '/test-stream.js')
+  , { StreamParse } = require(__dirname + '/../index.js')
 
-test('check stream StreamParse', function(t) {
+test('check stream StreamParse', function (t) {
   var count = 0
     , data = [
       '{"plip": 0}',
@@ -24,10 +25,10 @@ test('check stream StreamParse', function(t) {
       '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
     ]
     , expected = [
-      {plip: 0},
-      {plop: 42},
-      {'test': 'this is a long text'},
-      {'a':1, 'd':{}, 'e':null, 'b':true, 'c': [-12, 1, 2, 42]}
+      { plip: 0 },
+      { plop: 42 },
+      { 'test': 'this is a long text' },
+      { 'a': 1, 'd': {}, 'e': null, 'b': true, 'c': [-12, 1, 2, 42] }
     ]
     , ins = TestStream()
 
@@ -43,20 +44,20 @@ test('check stream StreamParse', function(t) {
     count += 1
     this.push(data)
     callback()
-  }, undefined, {objectMode: true}))
+  }, undefined, { objectMode: true }))
   .on('finish', function () {
     t.deepEqual(count, 4)
     t.end()
   })
 
   var i = 0, l = data.length
-  for(; i < l; i+=1) {
+  for (; i < l; i += 1) {
     ins.write(data[i])
   }
   ins.end()
 })
 
-test('check stream StreamParse with parser', function(t) {
+test('check stream StreamParse with parser', function (t) {
   var count = 0
     , data = [
       'plip=0',
@@ -65,13 +66,13 @@ test('check stream StreamParse with parser', function(t) {
       'a=1&b=true&c=-12&c=1&c=2&c=42&d={}&e=null'
     ]
     , expected = [
-      {plip: '0'},
-      {plop: '42'},
-      {'test': 'this is a long text'},
-      {'a': '1', 'd': '{}', 'e':'null', 'b':'true', 'c': ['-12', '1', '2', '42']}
+      { plip: '0' },
+      { plop: '42' },
+      { 'test': 'this is a long text' },
+      { 'a': '1', 'd': '{}', 'e': 'null', 'b': 'true', 'c': ['-12', '1', '2', '42'] }
     ]
     , ins = TestStream()
-    , parser = require('querystring').parse
+    , parser = (s) => Object.assign({}, querystring.parse(s))
 
   ins
   .pipe(StreamParse(parser))
@@ -85,14 +86,14 @@ test('check stream StreamParse with parser', function(t) {
     count += 1
     this.push(data)
     callback()
-  }, undefined, {objectMode: true}))
+  }, undefined, { objectMode: true }))
   .on('finish', function () {
     t.deepEqual(count, 4)
     t.end()
   })
 
   var i = 0, l = data.length
-  for(; i < l; i+=1) {
+  for (; i < l; i += 1) {
     ins.write(data[i])
   }
   ins.end()
