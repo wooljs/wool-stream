@@ -11,7 +11,7 @@
 
 'use strict'
 
-var test = require('tape')
+var test = require('tape-async')
   , fs = require('fs')
   , TestStream = require( __dirname + '/test-stream.js')
   , { StreamStringify } = require( __dirname + '/../index.js')
@@ -19,7 +19,7 @@ var test = require('tape')
 
 if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
 
-test('check stream StreamStringify', function(t) {
+test('check stream StreamStringify', async (t) => {
   var count = 0
     , data = [
       {plip: 0},
@@ -57,10 +57,10 @@ test('check stream StreamStringify', function(t) {
   for(; i < l; i+=1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })
 
-test('check stream StreamStringify with stringifier', function(t) {
+test('check stream StreamStringify with stringifier', async (t) => {
   var count = 0
     , data = [
       {plip: '0'},
@@ -99,5 +99,5 @@ test('check stream StreamStringify with stringifier', function(t) {
   for(; i < l; i+=1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })

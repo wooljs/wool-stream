@@ -11,11 +11,11 @@
 
 'use strict'
 
-var test = require('tape')
+var test = require('tape-async')
   , TestStream = require( __dirname + '/test-stream.js')
   , { AsyncMapStream } = require( __dirname + '/../index.js')
 
-test('check stream AsyncMapStream', function(t) {
+test('check stream AsyncMapStream', async (t) => {
   var count = 0, index = 0
     , data = [
       {plip: 0},
@@ -58,5 +58,5 @@ test('check stream AsyncMapStream', function(t) {
   for(; i < l; i+=1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })

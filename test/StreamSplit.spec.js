@@ -11,13 +11,13 @@
 
 'use strict'
 
-var test = require('tape')
+var test = require('tape-async')
   , fs = require('fs')
   , TestStream = require( __dirname + '/test-stream.js')
   ,  { StreamSplit }  = require( __dirname + '/../index.js')
   , file_load = __dirname+'/test_load.db'
 
-test('check stream StreamSplit with default separator', function(t) {
+test('check stream StreamSplit with default separator', async (t) => {
   var count = 0
     , expected = [
       '{"plip": 0}',
@@ -26,7 +26,7 @@ test('check stream StreamSplit with default separator', function(t) {
       '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
     ]
 
-  fs.createReadStream(file_load, {flags: 'r'})
+  await fs.createReadStream(file_load, {flags: 'r'})
   .pipe(StreamSplit())
   .on('error', function (e) {
     //console.trace(e)
@@ -45,7 +45,7 @@ test('check stream StreamSplit with default separator', function(t) {
   })
 })
 
-test('check stream StreamSplit with given one character separator', function(t) {
+test('check stream StreamSplit with given one character separator', async (t) => {
   var count = 0
     , input = 'a|b|42|a long string| a SHORTER| plouf'
     , expected = [
@@ -71,10 +71,10 @@ test('check stream StreamSplit with given one character separator', function(t) 
     t.end()
   })
 
-  ins.end(input)
+  await ins.end(input)
 })
 
-test('check stream StreamSplit with given many character separator', function(t) {
+test('check stream StreamSplit with given many character separator', async (t) => {
   var count = 0
     , input = 'a long string<br> a SHORTER<br>a<br>b<br>42<br> plouf'
     , expected = [
@@ -100,5 +100,5 @@ test('check stream StreamSplit with given many character separator', function(t)
     t.end()
   })
 
-  ins.end(input)
+  await ins.end(input)
 })

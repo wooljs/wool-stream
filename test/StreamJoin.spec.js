@@ -11,11 +11,11 @@
 
 'use strict'
 
-var test = require('tape')
+var test = require('tape-async')
   , TestStream = require( __dirname + '/test-stream.js')
   , { StreamJoin } = require( __dirname + '/../index.js')
 
-test('check stream StreamJoin with default separator', function(t) {
+test('check stream StreamJoin with default separator', async (t) => {
   var count = 0
     , data = [
       '{"plip": 0}',
@@ -57,5 +57,5 @@ test('check stream StreamJoin with default separator', function(t) {
   for(; i < l; i+=1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })

@@ -11,12 +11,12 @@
 
 'use strict'
 
-var test = require('tape')
+var test = require('tape-async')
   , querystring = require('querystring')
   , TestStream = require(__dirname + '/test-stream.js')
   , { StreamParse } = require(__dirname + '/../index.js')
 
-test('check stream StreamParse', function (t) {
+test('check stream StreamParse', async (t) => {
   var count = 0
     , data = [
       '{"plip": 0}',
@@ -54,10 +54,10 @@ test('check stream StreamParse', function (t) {
   for (; i < l; i += 1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })
 
-test('check stream StreamParse with parser', function (t) {
+test('check stream StreamParse with parser', async (t) => {
   var count = 0
     , data = [
       'plip=0',
@@ -96,5 +96,5 @@ test('check stream StreamParse with parser', function (t) {
   for (; i < l; i += 1) {
     ins.write(data[i])
   }
-  ins.end()
+  await ins.end()
 })
