@@ -17,84 +17,95 @@ var test = require('tape-async')
   , { StreamParse } = require(__dirname + '/../index.js')
 
 test('check stream StreamParse', async (t) => {
-  var count = 0
-    , data = [
-      '{"plip": 0}',
-      '{"plop": 42}',
-      '{"test": "this is a long text"}',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-    ]
-    , expected = [
-      { plip: 0 },
-      { plop: 42 },
-      { 'test': 'this is a long text' },
-      { 'a': 1, 'd': {}, 'e': null, 'b': true, 'c': [-12, 1, 2, 42] }
-    ]
-    , ins = TestStream()
+  try {
+    var count = 0
+      , data = [
+        '{"plip": 0}',
+        '{"plop": 42}',
+        '{"test": "this is a long text"}',
+        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+      ]
+      , expected = [
+        { plip: 0 },
+        { plop: 42 },
+        { 'test': 'this is a long text' },
+        { 'a': 1, 'd': {}, 'e': null, 'b': true, 'c': [-12, 1, 2, 42] }
+      ]
+      , ins = TestStream()
 
-  ins
-  .pipe(StreamParse())
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data, expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }, undefined, { objectMode: true }))
-  .on('finish', function () {
+    await ins
+      .pipe(StreamParse())
+      .on('error', function (e) {
+        //console.trace(e)
+        t.fail(e)
+        t.end()
+      })
+      .pipe(TestStream(function (data, encoding, callback) {
+        t.deepEqual(data, expected[count])
+        count += 1
+        this.push(data)
+        callback()
+      }, undefined, { objectMode: true }))
+
+    var i = 0, l = data.length
+    for (; i < l; i += 1) {
+      await ins.write(data[i])
+    }
+    await ins.end()
     t.deepEqual(count, 4)
-    t.end()
-  })
 
-  var i = 0, l = data.length
-  for (; i < l; i += 1) {
-    ins.write(data[i])
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(5)
+    t.end()
   }
-  await ins.end()
 })
 
 test('check stream StreamParse with parser', async (t) => {
-  var count = 0
-    , data = [
-      'plip=0',
-      'plop=42',
-      'test=this is a long text',
-      'a=1&b=true&c=-12&c=1&c=2&c=42&d={}&e=null'
-    ]
-    , expected = [
-      { plip: '0' },
-      { plop: '42' },
-      { 'test': 'this is a long text' },
-      { 'a': '1', 'd': '{}', 'e': 'null', 'b': 'true', 'c': ['-12', '1', '2', '42'] }
-    ]
-    , ins = TestStream()
-    , parser = (s) => Object.assign({}, querystring.parse(s))
+  try {
+    var count = 0
+      , data = [
+        'plip=0',
+        'plop=42',
+        'test=this is a long text',
+        'a=1&b=true&c=-12&c=1&c=2&c=42&d={}&e=null'
+      ]
+      , expected = [
+        { plip: '0' },
+        { plop: '42' },
+        { 'test': 'this is a long text' },
+        { 'a': '1', 'd': '{}', 'e': 'null', 'b': 'true', 'c': ['-12', '1', '2', '42'] }
+      ]
+      , ins = TestStream()
+      , parser = (s) => Object.assign({}, querystring.parse(s))
 
-  ins
-  .pipe(StreamParse(parser))
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data, expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }, undefined, { objectMode: true }))
-  .on('finish', function () {
+    await ins
+      .pipe(StreamParse(parser))
+      .on('error', function (e) {
+        //console.trace(e)
+        t.fail(e)
+        t.end()
+      })
+      .pipe(TestStream(function (data, encoding, callback) {
+        t.deepEqual(data, expected[count])
+        count += 1
+        this.push(data)
+        callback()
+      }, undefined, { objectMode: true }))
+
+    var i = 0, l = data.length
+    for (; i < l; i += 1) {
+      await ins.write(data[i])
+    }
+    await ins.end()
+
     t.deepEqual(count, 4)
-    t.end()
-  })
 
-  var i = 0, l = data.length
-  for (; i < l; i += 1) {
-    ins.write(data[i])
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(5)
+    t.end()
   }
-  await ins.end()
 })

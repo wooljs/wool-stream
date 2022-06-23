@@ -25,7 +25,7 @@ module.exports = (function () {
   TestStream.prototype._transform = function (data, encoding, callback) {
     if (typeof this.tf === 'function') {
       try {
-        this.tf(data,encoding, callback)
+        return this.tf(data,encoding, callback)
       } catch(e) {
         callback(e)
       }

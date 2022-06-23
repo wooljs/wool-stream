@@ -11,13 +11,57 @@
 
 'use strict'
 
-const test = require('tape')
-/*
-  , TestStream = require( __dirname + '/test-stream.js')
-  , { PushStream } = require( __dirname + '/../index.js')
-*/
-test.skip('check stream PushStream', function(t) {
-  //var count = 0, index = 0
+const test = require('tape-async')
+  , TestStream = require(__dirname + '/test-stream.js')
+  , { PushStream } = require(__dirname + '/../index.js')
 
-  t.end()
+test('check stream PushStream', async (t) => {
+  try {
+    var count = 0
+      , data = [
+        { plip: 0 },
+        { plop: 42 },
+        { 'test': 'this is a long text' },
+        { 'a': 1, 'b': true, 'c': [-12, 1, 2, 42], 'd': {}, 'e': null }
+      ]
+      , ins = TestStream(undefined, undefined, { objectMode: true })
+      , out = TestStream(function (d, e, c) { /*console.log('out', d);*/ count++; this.push(d); c() }, undefined, { objectMode: true })
+      , res = TestStream(undefined, undefined, { objectMode: true })
+
+    ins.on('finish', () => t.fail('ins should not finish'))
+    out.on('finish', () => t.fail('out should not finish'))
+
+
+    await ins.pipe(out)
+
+    for (const d of data) {
+      await ins.write(d)
+    }
+
+    t.deepEqual(count, data.length)
+
+    for (const d of data) {
+      await res.write(d)
+    }
+
+    await new Promise(resolve => {
+      var ps = PushStream(ins)
+      ps.on('finish', resolve)
+      res.pipe(ps)
+      res.end()
+    })
+    t.deepEqual(count, data.length * 2)
+
+    for (const d of data) {
+      // console.log('iter ins', d)
+      await ins.write(d)
+    }
+
+    t.deepEqual(count, data.length * 3)
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(3)
+    t.end()
+  }
 })

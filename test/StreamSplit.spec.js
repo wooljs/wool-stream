@@ -13,92 +13,111 @@
 
 var test = require('tape-async')
   , fs = require('fs')
-  , TestStream = require( __dirname + '/test-stream.js')
-  ,  { StreamSplit }  = require( __dirname + '/../index.js')
-  , file_load = __dirname+'/test_load.db'
+  , TestStream = require(__dirname + '/test-stream.js')
+  , { StreamSplit } = require(__dirname + '/../index.js')
+  , file_load = __dirname + '/test_load.db'
 
 test('check stream StreamSplit with default separator', async (t) => {
-  var count = 0
-    , expected = [
-      '{"plip": 0}',
-      '{"plop": 42}',
-      '{"test": "this is a long text"}',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-    ]
+  try {
+    var count = 0
+      , expected = [
+        '{"plip": 0}',
+        '{"plop": 42}',
+        '{"test": "this is a long text"}',
+        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+      ]
 
-  await fs.createReadStream(file_load, {flags: 'r'})
-  .pipe(StreamSplit())
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data.toString(), expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }))
-  .on('finish', function () {
+    await new Promise((resolve) =>
+      fs.createReadStream(file_load, { flags: 'r' })
+        .on('end', resolve)
+        .pipe(StreamSplit())
+        .on('error', function (e) {
+          //console.trace(e)
+          t.fail(e)
+          t.end()
+        })
+        .pipe(TestStream(function (data, encoding, callback) {
+          t.deepEqual(data.toString(), expected[count])
+          count += 1
+          this.push(data)
+          callback()
+        }))
+    )
+
     t.deepEqual(count, 4)
+
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(5)
     t.end()
-  })
+  }
 })
 
 test('check stream StreamSplit with given one character separator', async (t) => {
-  var count = 0
-    , input = 'a|b|42|a long string| a SHORTER| plouf'
-    , expected = [
-      'a','b','42','a long string',' a SHORTER',' plouf'
-    ]
-    , ins = TestStream()
+  try {
+    var count = 0
+      , input = 'a|b|42|a long string| a SHORTER| plouf'
+      , expected = [
+        'a', 'b', '42', 'a long string', ' a SHORTER', ' plouf'
+      ]
+      , ins = TestStream()
 
-  ins
-  .pipe(StreamSplit('|'))
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data.toString(), expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }))
-  .on('finish', function () {
+    ins
+      .pipe(StreamSplit('|'))
+      .on('error', function (e) {
+        //console.trace(e)
+        t.fail(e)
+        t.end()
+      })
+      .pipe(TestStream(function (data, encoding, callback) {
+        t.deepEqual(data.toString(), expected[count])
+        count += 1
+        this.push(data)
+        callback()
+      }))
+
+    await ins.end(input)
     t.deepEqual(count, 5)
-    t.end()
-  })
 
-  await ins.end(input)
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(6)
+    t.end()
+  }
 })
 
 test('check stream StreamSplit with given many character separator', async (t) => {
-  var count = 0
-    , input = 'a long string<br> a SHORTER<br>a<br>b<br>42<br> plouf'
-    , expected = [
-      'a long string',' a SHORTER','a','b','42',' plouf'
-    ]
-    , ins = TestStream()
+  try {
+    var count = 0
+      , input = 'a long string<br> a SHORTER<br>a<br>b<br>42<br> plouf'
+      , expected = [
+        'a long string', ' a SHORTER', 'a', 'b', '42', ' plouf'
+      ]
+      , ins = TestStream()
 
-  ins
-  .pipe(StreamSplit('<br>'))
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data.toString(), expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }))
-  .on('finish', function () {
+    ins
+      .pipe(StreamSplit('<br>'))
+      .on('error', function (e) {
+        //console.trace(e)
+        t.fail(e)
+        t.end()
+      })
+      .pipe(TestStream(function (data, encoding, callback) {
+        t.deepEqual(data.toString(), expected[count])
+        count += 1
+        this.push(data)
+        callback()
+      }))
+
+    await ins.end(input)
     t.deepEqual(count, 5)
-    t.end()
-  })
 
-  await ins.end(input)
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(6)
+    t.end()
+  }
 })

@@ -12,50 +12,55 @@
 'use strict'
 
 var test = require('tape-async')
-  , TestStream = require( __dirname + '/test-stream.js')
-  , { StreamJoin } = require( __dirname + '/../index.js')
+  , TestStream = require(__dirname + '/test-stream.js')
+  , { StreamJoin } = require(__dirname + '/../index.js')
 
 test('check stream StreamJoin with default separator', async (t) => {
-  var count = 0
-    , data = [
-      '{"plip": 0}',
-      '{"plop": 42}',
-      '{"test": "this is a long text"}',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-    ]
-    , expected = [
-      '{"plip": 0}',
-      '\n',
-      '{"plop": 42}',
-      '\n',
-      '{"test": "this is a long text"}',
-      '\n',
-      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
-      '\n'
-    ]
-    , ins = TestStream()
+  try {
+    var count = 0
+      , data = [
+        '{"plip": 0}',
+        '{"plop": 42}',
+        '{"test": "this is a long text"}',
+        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+      ]
+      , expected = [
+        '{"plip": 0}',
+        '\n',
+        '{"plop": 42}',
+        '\n',
+        '{"test": "this is a long text"}',
+        '\n',
+        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
+        '\n'
+      ]
+      , ins = TestStream()
 
-  ins
-  .pipe(StreamJoin())
-  .on('error', function (e) {
-    //console.trace(e)
-    t.fail(e)
-    t.end()
-  })
-  .pipe(TestStream(function (data, encoding, callback) {
-    t.deepEqual(data.toString(), expected[count])
-    count += 1
-    this.push(data)
-    callback()
-  }, undefined, {objectMode: true}))
-  .on('finish', function () {
+    ins
+      .pipe(StreamJoin())
+      .on('error', function (e) {
+        //console.trace(e)
+        t.fail(e)
+        t.end()
+      })
+      .pipe(TestStream(function (data, encoding, callback) {
+        t.deepEqual(data.toString(), expected[count])
+        count += 1
+        this.push(data)
+        callback()
+      }, undefined, { objectMode: true }))
+
+    var i = 0, l = data.length
+    for (; i < l; i += 1) {
+      await ins.write(data[i])
+    }
+    await ins.end()
     t.deepEqual(count, 8)
-    t.end()
-  })
 
-  var i = 0, l = data.length
-  for(; i < l; i+=1) {
-    ins.write(data[i])
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(9)
+    t.end()
   }
-  await ins.end()
 })
