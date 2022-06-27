@@ -20,7 +20,8 @@ module.exports = (function () {
     'AsyncMapStream',
     'CountStream',
     'PushStream',
-    'DispatchStream'
+    'DispatchStream',
+    'MultiPushStream'
   ].reduce(function(p, c) {
     p[c] = require(__dirname+'/lib/'+c+'.js')
     return p
