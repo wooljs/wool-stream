@@ -11,7 +11,7 @@
 
 'use strict'
 
-var test = require('tape-async')
+var test = require('tape')
   , TestStream = require(__dirname + '/test-stream.js')
   , { StreamJoin } = require(__dirname + '/../index.js')
 

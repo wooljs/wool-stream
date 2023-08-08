@@ -11,7 +11,7 @@
 
 'use strict'
 
-const test = require('tape-async')
+const test = require('tape')
   , TestStream = require(__dirname + '/test-stream.js')
   , { MultiPushStream } = require(__dirname + '/../index.js')
 

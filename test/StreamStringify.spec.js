@@ -11,7 +11,7 @@
 
 'use strict'
 
-var test = require('tape-async')
+var test = require('tape')
   , fs = require('fs')
   , TestStream = require(__dirname + '/test-stream.js')
   , { StreamStringify } = require(__dirname + '/../index.js')
