@@ -28,7 +28,8 @@ test('check stream StreamSplit with default separator', async (t) => {
       ]
 
     await new Promise((resolve) =>
-      fs.createReadStream(file_load, { flags: 'r' })
+      // highWaterMark default to 64k, we force to 16 to provoke the stream iteration
+      fs.createReadStream(file_load, { flags: 'r', highWaterMark: 16 })
         .on('end', resolve)
         .pipe(StreamSplit())
         .on('error', function (e) {
@@ -78,12 +79,12 @@ test('check stream StreamSplit with given one character separator', async (t) =>
       }))
 
     await ins.end(input)
-    t.deepEqual(count, 5)
+    t.deepEqual(count, 6)
 
   } catch (e) {
     t.fail(e.toString())
   } finally {
-    t.plan(6)
+    t.plan(7)
     t.end()
   }
 })
@@ -112,12 +113,12 @@ test('check stream StreamSplit with given many character separator', async (t) =
       }))
 
     await ins.end(input)
-    t.deepEqual(count, 5)
+    t.deepEqual(count, 6)
 
   } catch (e) {
     t.fail(e.toString())
   } finally {
-    t.plan(6)
+    t.plan(7)
     t.end()
   }
 })
