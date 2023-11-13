@@ -21,7 +21,8 @@ module.exports = (function () {
     'CountStream',
     'PushStream',
     'DispatchStream',
-    'MultiPushStream'
+    'MultiPushStream',
+    'MergeOrderedStream'
   ].reduce(function(p, c) {
     p[c] = require(__dirname+'/lib/'+c+'.js')
     return p
