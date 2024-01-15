@@ -12,6 +12,7 @@
 'use strict'
 
 const test = require('tape')
+  , stream = require('stream')
   , TestStream = require(__dirname + '/test-stream.js')
   , { PushStream } = require(__dirname + '/../index.js')
 
@@ -58,6 +59,20 @@ test('check stream PushStream', async (t) => {
     }
 
     t.deepEqual(count, data.length * 3)
+  } catch (e) {
+    t.fail(e.toString())
+  } finally {
+    t.plan(3)
+    t.end()
+  }
+})
+
+test('check stream PushStream', async (t) => {
+  try {
+
+    stream.Readable.from([...Array(50).keys()])
+      .pipe(PushStream)
+
   } catch (e) {
     t.fail(e.toString())
   } finally {
