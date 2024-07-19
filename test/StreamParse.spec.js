@@ -9,51 +9,52 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
+import querystring from 'querystring'
 
-var test = require('tape')
-  , querystring = require('querystring')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { StreamParse } = require(__dirname + '/../index.js')
+import test from 'tape'
+
+import {
+  StreamParse,
+  TestStream
+} from '../index.js'
 
 test('check stream StreamParse', async (t) => {
   try {
-    var count = 0
-      , data = [
-        '{"plip": 0}',
-        '{"plop": 42}',
-        '{"test": "this is a long text"}',
-        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-      ]
-      , expected = [
-        { plip: 0 },
-        { plop: 42 },
-        { 'test': 'this is a long text' },
-        { 'a': 1, 'd': {}, 'e': null, 'b': true, 'c': [-12, 1, 2, 42] }
-      ]
-      , ins = TestStream()
+    let count = 0
+    const data = [
+      '{"plip": 0}',
+      '{"plop": 42}',
+      '{"test": "this is a long text"}',
+      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+    ]
+    const expected = [
+      { plip: 0 },
+      { plop: 42 },
+      { test: 'this is a long text' },
+      { a: 1, d: {}, e: null, b: true, c: [-12, 1, 2, 42] }
+    ]
+    const ins = new TestStream()
 
     await ins
-      .pipe(StreamParse())
+      .pipe(new StreamParse())
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data, expected[count])
         count += 1
         this.push(data)
         callback()
       }, undefined, { objectMode: true }))
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       await ins.write(data[i])
     }
     await ins.end()
     t.deepEqual(count, 4)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {
@@ -64,44 +65,43 @@ test('check stream StreamParse', async (t) => {
 
 test('check stream StreamParse with parser', async (t) => {
   try {
-    var count = 0
-      , data = [
-        'plip=0',
-        'plop=42',
-        'test=this is a long text',
-        'a=1&b=true&c=-12&c=1&c=2&c=42&d={}&e=null'
-      ]
-      , expected = [
-        { plip: '0' },
-        { plop: '42' },
-        { 'test': 'this is a long text' },
-        { 'a': '1', 'd': '{}', 'e': 'null', 'b': 'true', 'c': ['-12', '1', '2', '42'] }
-      ]
-      , ins = TestStream()
-      , parser = (s) => Object.assign({}, querystring.parse(s))
+    let count = 0
+    const data = [
+      'plip=0',
+      'plop=42',
+      'test=this is a long text',
+      'a=1&b=true&c=-12&c=1&c=2&c=42&d={}&e=null'
+    ]
+    const expected = [
+      { plip: '0' },
+      { plop: '42' },
+      { test: 'this is a long text' },
+      { a: '1', d: '{}', e: 'null', b: 'true', c: ['-12', '1', '2', '42'] }
+    ]
+    const ins = new TestStream()
+    const parser = (s) => Object.assign({}, querystring.parse(s))
 
     await ins
-      .pipe(StreamParse(parser))
+      .pipe(new StreamParse(parser))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data, expected[count])
         count += 1
         this.push(data)
         callback()
       }, undefined, { objectMode: true }))
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       await ins.write(data[i])
     }
     await ins.end()
 
     t.deepEqual(count, 4)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

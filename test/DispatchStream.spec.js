@@ -9,11 +9,11 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
-
-const test = require('tape')
-  , { DispatchStream } = require(__dirname + '/../index.js')
-  , TestStream = require(__dirname + '/test-stream.js')
+import test from 'tape'
+import {
+  DispatchStream,
+  TestStream
+} from '../index.js'
 
 test('check DispatchStream with filters', async (t) => {
   try {
@@ -21,13 +21,13 @@ test('check DispatchStream with filters', async (t) => {
       { plip: 0 },
       { plop: 42 },
       { test: 'this is a long text' },
-      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null },
+      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }
     ]
     const expected = [
       ['out3', { plip: 0 }],
       ['out1', { plop: 42 }],
       ['out2', { test: 'this is a long text' }],
-      ['out3', { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }],
+      ['out3', { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }]
     ]
 
     let count = 0
@@ -42,17 +42,17 @@ test('check DispatchStream with filters', async (t) => {
       callback()
     }
 
-    const out1 = TestStream(checkFor('out1'), undefined, { objectMode: true, decodeStrings: false })
-      , out2 = TestStream(checkFor('out2'), undefined, { objectMode: true, decodeStrings: false })
-      , out3 = TestStream(checkFor('out3'), undefined, { objectMode: true, decodeStrings: false })
+    const out1 = new TestStream(checkFor('out1'), undefined, { objectMode: true, decodeStrings: false })
+    const out2 = new TestStream(checkFor('out2'), undefined, { objectMode: true, decodeStrings: false })
+    const out3 = new TestStream(checkFor('out3'), undefined, { objectMode: true, decodeStrings: false })
 
-    const ds = DispatchStream([
+    const ds = new DispatchStream([
       [(x) => 'plop' in x, out1],
       [(x) => typeof x.test === 'string', out2],
-      [() => true, out3], // default
+      [() => true, out3] // default
     ])
 
-    for (let x of data) {
+    for (const x of data) {
       await ds.write(x)
     }
 
@@ -62,10 +62,9 @@ test('check DispatchStream with filters', async (t) => {
       })
     }))
 
-    await new Promise((r) => ds.end(r))
+    await new Promise((resolve) => ds.end(resolve))
 
     await Promise.all(prom)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

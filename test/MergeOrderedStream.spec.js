@@ -9,11 +9,9 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
-
-const test = require('tape')
-  , { Readable } = require('stream')
-  , { MergeOrderedStream } = require(__dirname + '/../index.js')
+import test from 'tape'
+import { MergeOrderedStream } from '../index.js'
+import { Readable } from 'stream'
 
 test('check stream MergeOrderedStream', async (t) => {
   try {
@@ -26,29 +24,28 @@ test('check stream MergeOrderedStream', async (t) => {
       { n: 5, d: 'f' },
       { n: 6, d: 'g' },
       { n: 7, d: 'j' },
-      { n: 9, d: 'm' },
+      { n: 9, d: 'm' }
     ])
     const ins2 = Readable.from([
       { n: 2, d: 'c' },
       { n: 3, d: 'd' },
       { n: 6, d: 'h' },
-      { n: 6, d: 'i' },
+      { n: 6, d: 'i' }
     ])
     const ins3 = Readable.from([
       { n: 7, d: 'k' },
       { n: 8, d: 'l' },
-      { n: 9, d: 'n' },
+      { n: 9, d: 'n' }
     ])
 
-    const merged = MergeOrderedStream((a, b) => (a.n - b.n), [ins1, ins2, ins3])
+    const merged = new MergeOrderedStream((a, b) => (a.n - b.n), [ins1, ins2, ins3])
 
     let data
-      , count = 0
-    while (null !== (data = merged.read())) {
+    let count = 0
+    while ((data = merged.read()) !== null) {
       t.deepEqual(data.d, expected[count])
       count += 1
     }
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

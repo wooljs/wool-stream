@@ -9,23 +9,28 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-module.exports = (function () {
-  'use strict'
+import AsyncMapStream from './lib/AsyncMapStream.js'
+import CountStream from './lib/CountStream.js'
+import DispatchStream from './lib/DispatchStream.js'
+import MergeOrderedStream from './lib/MergeOrderedStream.js'
+import MultiPushStream from './lib/MultiPushStream.js'
+import PushStream from './lib/PushStream.js'
+import StreamJoin from './lib/StreamJoin.js'
+import StreamParse from './lib/StreamParse.js'
+import StreamSplit from './lib/StreamSplit.js'
+import StreamStringify from './lib/StreamStringify.js'
+import TestStream from './lib/TestStream.js'
 
-  return [
-    'StreamSplit',
-    'StreamJoin',
-    'StreamParse',
-    'StreamStringify',
-    'AsyncMapStream',
-    'CountStream',
-    'PushStream',
-    'DispatchStream',
-    'MultiPushStream',
-    'MergeOrderedStream'
-  ].reduce(function(p, c) {
-    p[c] = require(__dirname+'/lib/'+c+'.js')
-    return p
-  }, {})
-
-}())
+export {
+  AsyncMapStream,
+  CountStream,
+  DispatchStream,
+  MergeOrderedStream,
+  MultiPushStream,
+  PushStream,
+  StreamJoin,
+  StreamParse,
+  StreamSplit,
+  StreamStringify,
+  TestStream
+}

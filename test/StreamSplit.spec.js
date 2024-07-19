@@ -9,35 +9,38 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
+import fs from 'fs'
 
-var test = require('tape')
-  , fs = require('fs')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { StreamSplit } = require(__dirname + '/../index.js')
-  , file_load = __dirname + '/test_load.db'
+import test from 'tape'
+
+import {
+  StreamSplit,
+  TestStream
+} from '../index.js'
+
+const FILE_LOAD = 'test/test_load.db'
 
 test('check stream StreamSplit with default separator', async (t) => {
   try {
-    var count = 0
-      , expected = [
-        '{"plip": 0}',
-        '{"plop": 42}',
-        '{"test": "this is a long text"}',
-        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-      ]
+    let count = 0
+    const expected = [
+      '{"plip": 0}',
+      '{"plop": 42}',
+      '{"test": "this is a long text"}',
+      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+    ]
 
     await new Promise((resolve) =>
       // highWaterMark default to 64k, we force to 16 to provoke the stream iteration
-      fs.createReadStream(file_load, { flags: 'r', highWaterMark: 16 })
+      fs.createReadStream(FILE_LOAD, { flags: 'r', highWaterMark: 16 })
         .on('end', resolve)
-        .pipe(StreamSplit())
+        .pipe(new StreamSplit())
         .on('error', function (e) {
-          //console.trace(e)
+          // console.trace(e)
           t.fail(e)
           t.end()
         })
-        .pipe(TestStream(function (data, encoding, callback) {
+        .pipe(new TestStream(function (data, encoding, callback) {
           t.deepEqual(data.toString(), expected[count])
           count += 1
           this.push(data)
@@ -46,7 +49,6 @@ test('check stream StreamSplit with default separator', async (t) => {
     )
 
     t.deepEqual(count, 4)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {
@@ -57,21 +59,21 @@ test('check stream StreamSplit with default separator', async (t) => {
 
 test('check stream StreamSplit with given one character separator', async (t) => {
   try {
-    var count = 0
-      , input = 'a|b|42|a long string| a SHORTER| plouf'
-      , expected = [
-        'a', 'b', '42', 'a long string', ' a SHORTER', ' plouf'
-      ]
-      , ins = TestStream()
+    let count = 0
+    const input = 'a|b|42|a long string| a SHORTER| plouf'
+    const expected = [
+      'a', 'b', '42', 'a long string', ' a SHORTER', ' plouf'
+    ]
+    const ins = new TestStream()
 
     ins
-      .pipe(StreamSplit('|'))
+      .pipe(new StreamSplit('|'))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data.toString(), expected[count])
         count += 1
         this.push(data)
@@ -80,7 +82,6 @@ test('check stream StreamSplit with given one character separator', async (t) =>
 
     await ins.end(input)
     t.deepEqual(count, 6)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {
@@ -91,21 +92,21 @@ test('check stream StreamSplit with given one character separator', async (t) =>
 
 test('check stream StreamSplit with given many character separator', async (t) => {
   try {
-    var count = 0
-      , input = 'a long string<br> a SHORTER<br>a<br>b<br>42<br> plouf'
-      , expected = [
-        'a long string', ' a SHORTER', 'a', 'b', '42', ' plouf'
-      ]
-      , ins = TestStream()
+    let count = 0
+    const input = 'a long string<br> a SHORTER<br>a<br>b<br>42<br> plouf'
+    const expected = [
+      'a long string', ' a SHORTER', 'a', 'b', '42', ' plouf'
+    ]
+    const ins = new TestStream()
 
     ins
-      .pipe(StreamSplit('<br>'))
+      .pipe(new StreamSplit('<br>'))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data.toString(), expected[count])
         count += 1
         this.push(data)
@@ -114,7 +115,6 @@ test('check stream StreamSplit with given many character separator', async (t) =
 
     await ins.end(input)
     t.deepEqual(count, 6)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

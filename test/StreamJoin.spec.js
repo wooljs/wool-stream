@@ -9,54 +9,53 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
-
-var test = require('tape')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { StreamJoin } = require(__dirname + '/../index.js')
+import test from 'tape'
+import {
+  StreamJoin,
+  TestStream
+} from '../index.js'
 
 test('check stream StreamJoin with default separator', async (t) => {
   try {
-    var count = 0
-      , data = [
-        '{"plip": 0}',
-        '{"plop": 42}',
-        '{"test": "this is a long text"}',
-        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
-      ]
-      , expected = [
-        '{"plip": 0}',
-        '\n',
-        '{"plop": 42}',
-        '\n',
-        '{"test": "this is a long text"}',
-        '\n',
-        '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
-        '\n'
-      ]
-      , ins = TestStream()
+    let count = 0
+    const data = [
+      '{"plip": 0}',
+      '{"plop": 42}',
+      '{"test": "this is a long text"}',
+      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}'
+    ]
+    const expected = [
+      '{"plip": 0}',
+      '\n',
+      '{"plop": 42}',
+      '\n',
+      '{"test": "this is a long text"}',
+      '\n',
+      '{"a":1, "b":true, "c": [-12, 1, 2, 42], "d":{}, "e":null}',
+      '\n'
+    ]
+    const ins = new TestStream()
 
     ins
-      .pipe(StreamJoin())
+      .pipe(new StreamJoin())
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data.toString(), expected[count])
         count += 1
         this.push(data)
         callback()
       }, undefined, { objectMode: true }))
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       await ins.write(data[i])
     }
     await ins.end()
     t.deepEqual(count, 8)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

@@ -9,55 +9,59 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
+import fs from 'fs'
 
-var test = require('tape')
-  , fs = require('fs')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { StreamStringify } = require(__dirname + '/../index.js')
-  , file_save = __dirname + '/test_save.db'
+import test from 'tape'
 
-if (fs.existsSync(file_save)) fs.unlinkSync(file_save)
+import {
+  StreamStringify,
+  TestStream
+} from '../index.js'
+
+import { stringify } from 'querystring'
+
+const FILE_SAVE = 'test/test_save.db'
+
+if (fs.existsSync(FILE_SAVE)) fs.unlinkSync(FILE_SAVE)
 
 test('check stream StreamStringify', async (t) => {
   try {
-    var count = 0
-      , data = [
-        { plip: 0 },
-        { plop: 42 },
-        { 'test': 'this is a long text' },
-        { 'a': 1, 'b': true, 'c': [-12, 1, 2, 42], 'd': {}, 'e': null }
-      ]
-      , expected = [
-        '{"plip":0}',
-        '{"plop":42}',
-        '{"test":"this is a long text"}',
-        '{"a":1,"b":true,"c":[-12,1,2,42],"d":{},"e":null}'
-      ]
-      , ins = TestStream(undefined, undefined, { objectMode: true })
+    let count = 0
+    const data = [
+      { plip: 0 },
+      { plop: 42 },
+      { test: 'this is a long text' },
+      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }
+    ]
+    const expected = [
+      '{"plip":0}',
+      '{"plop":42}',
+      '{"test":"this is a long text"}',
+      '{"a":1,"b":true,"c":[-12,1,2,42],"d":{},"e":null}'
+    ]
+    const ins = new TestStream(undefined, undefined, { objectMode: true })
 
     ins
-      .pipe(StreamStringify())
+      .pipe(new StreamStringify())
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data.toString(), expected[count])
         count += 1
         this.push(data)
         callback()
       }))
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       ins.write(data[i])
     }
     await ins.end()
 
     t.deepEqual(count, 4)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {
@@ -68,44 +72,42 @@ test('check stream StreamStringify', async (t) => {
 
 test('check stream StreamStringify with stringifier', async (t) => {
   try {
-    var count = 0
-      , data = [
-        { plip: '0' },
-        { plop: '42' },
-        { 'test': 'this is a long text' },
-        { 'a': '1', 'd': '{}', 'e': 'null', 'b': 'true', 'c': ['-12', '1', '2', '42'] }
-      ]
-      , expected = [
-        'plip=0',
-        'plop=42',
-        'test=this%20is%20a%20long%20text',
-        'a=1&d=%7B%7D&e=null&b=true&c=-12&c=1&c=2&c=42'
-      ]
-      , ins = TestStream(undefined, undefined, { objectMode: true })
-      , stringifier = require('querystring').stringify
+    let count = 0
+    const data = [
+      { plip: '0' },
+      { plop: '42' },
+      { test: 'this is a long text' },
+      { a: '1', d: '{}', e: 'null', b: 'true', c: ['-12', '1', '2', '42'] }
+    ]
+    const expected = [
+      'plip=0',
+      'plop=42',
+      'test=this%20is%20a%20long%20text',
+      'a=1&d=%7B%7D&e=null&b=true&c=-12&c=1&c=2&c=42'
+    ]
+    const ins = new TestStream(undefined, undefined, { objectMode: true })
 
     ins
-      .pipe(StreamStringify(stringifier))
+      .pipe(new StreamStringify(stringify))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data.toString(), expected[count])
         count += 1
         this.push(data)
         callback()
       }))
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       ins.write(data[i])
     }
     await ins.end()
 
     t.deepEqual(count, 4)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

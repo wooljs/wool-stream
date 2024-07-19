@@ -9,51 +9,51 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
-
-var test = require('tape')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { AsyncMapStream } = require(__dirname + '/../index.js')
+import test from 'tape'
+import {
+  AsyncMapStream,
+  TestStream
+} from '../index.js'
 
 test('check stream AsyncMapStream', async (t) => {
   try {
     let count = 0
-      , index = 0
+    let index = 0
 
-    const ins = TestStream(undefined, undefined, { objectMode: true })
-      , data = [
-        { plip: 0 },
-        { plop: 42 },
-        { 'test': 'this is a long text' },
-        { 'a': 1, 'b': true, 'c': [-12, 1, 2, 42], 'd': {}, 'e': null }
-      ]
-      , expected = [
-        { plip: 0, test: 0 },
-        { plop: 42, test: 1 },
-        { test: 2 },
-        { 'a': 1, 'b': true, 'c': [-12, 1, 2, 42], 'd': {}, 'e': null, test: 3 }
-      ]
+    const ins = new TestStream(undefined, undefined, { objectMode: true })
+    const data = [
+      { plip: 0 },
+      { plop: 42 },
+      { test: 'this is a long text' },
+      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }
+    ]
+    const expected = [
+      { plip: 0, test: 0 },
+      { plop: 42, test: 1 },
+      { test: 2 },
+      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null, test: 3 }
+    ]
 
     await ins
-      .pipe(AsyncMapStream(async (o) => { o.test = index; index += 1; return o }))
+      .pipe(new AsyncMapStream(async (o) => { o.test = index; index += 1; return o }))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
-      .pipe(TestStream(function (data, encoding, callback) {
+      .pipe(new TestStream(function (data, encoding, callback) {
         t.deepEqual(data, expected[count])
         count += 1
         this.push(data)
         callback()
       }, undefined, { objectMode: true }))
       .on('error', function (e) {
-        //console.trace(e)
+        // console.trace(e)
         t.fail(e)
         t.end()
       })
 
-    var i = 0, l = data.length
+    let i = 0; const l = data.length
     for (; i < l; i += 1) {
       await ins.write(data[i])
     }
@@ -69,15 +69,14 @@ test('check stream AsyncMapStream', async (t) => {
 
 test('check error AsyncMapStream', async (t) => {
   try {
+    t.throws(() => new AsyncMapStream(() => {}), 'should throw for non async')
 
-    t.throws(() => AsyncMapStream(() => {}), 'should throw for non async')
-
-    const ins = TestStream(undefined, undefined, { objectMode: true })
+    const ins = new TestStream(undefined, undefined, { objectMode: true })
     let hasError = false
 
     await new Promise((resolve) => {
       ins
-        .pipe(AsyncMapStream(async () => { throw new Error('It\'s me!') }))
+        .pipe(new AsyncMapStream(async () => { throw new Error('It\'s me!') }))
         .on('error', (e) => {
           t.deepEqual(e.message, 'It\'s me!')
           hasError = true
@@ -89,7 +88,6 @@ test('check error AsyncMapStream', async (t) => {
         })
         .end('plop') // 'plop' is send data before end
     })
-
   } catch (e) {
     t.fail(e.toString())
   } finally {

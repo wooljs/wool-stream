@@ -9,29 +9,27 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-'use strict'
-
-const test = require('tape')
-  , stream = require('stream')
-  , TestStream = require(__dirname + '/test-stream.js')
-  , { PushStream } = require(__dirname + '/../index.js')
+import test from 'tape'
+import {
+  PushStream,
+  TestStream
+} from '../index.js'
 
 test('check stream PushStream', async (t) => {
   try {
-    var count = 0
-      , data = [
-        { plip: 0 },
-        { plop: 42 },
-        { 'test': 'this is a long text' },
-        { 'a': 1, 'b': true, 'c': [-12, 1, 2, 42], 'd': {}, 'e': null }
-      ]
-      , ins = TestStream(undefined, undefined, { objectMode: true })
-      , out = TestStream(function (d, e, c) { /*console.log('out', d);*/ count++; this.push(d); c() }, undefined, { objectMode: true })
-      , res = TestStream(undefined, undefined, { objectMode: true })
+    let count = 0
+    const data = [
+      { plip: 0 },
+      { plop: 42 },
+      { test: 'this is a long text' },
+      { a: 1, b: true, c: [-12, 1, 2, 42], d: {}, e: null }
+    ]
+    const ins = new TestStream(undefined, undefined, { objectMode: true })
+    const out = new TestStream(function (d, e, c) { /* console.log('out', d); */ count++; this.push(d); c() }, undefined, { objectMode: true })
+    const res = new TestStream(undefined, undefined, { objectMode: true })
 
     ins.on('finish', () => t.fail('ins should not finish'))
     out.on('finish', () => t.fail('out should not finish'))
-
 
     await ins.pipe(out)
 
@@ -46,7 +44,7 @@ test('check stream PushStream', async (t) => {
     }
 
     await new Promise(resolve => {
-      var ps = PushStream(ins)
+      const ps = new PushStream(ins)
       ps.on('finish', resolve)
       res.pipe(ps)
       res.end()
@@ -59,20 +57,6 @@ test('check stream PushStream', async (t) => {
     }
 
     t.deepEqual(count, data.length * 3)
-  } catch (e) {
-    t.fail(e.toString())
-  } finally {
-    t.plan(3)
-    t.end()
-  }
-})
-
-test('check stream PushStream', async (t) => {
-  try {
-
-    stream.Readable.from([...Array(50).keys()])
-      .pipe(PushStream)
-
   } catch (e) {
     t.fail(e.toString())
   } finally {
